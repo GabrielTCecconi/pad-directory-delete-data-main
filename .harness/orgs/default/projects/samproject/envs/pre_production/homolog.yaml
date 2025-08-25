@@ -1,0 +1,6 @@
+environment:
+  name: homolog
+  identifier: homolog
+  orgIdentifier: default
+  projectIdentifier: samproject
+  type: PreProduction

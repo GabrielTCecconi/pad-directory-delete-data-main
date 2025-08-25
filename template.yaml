@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Stack for deployment using Github Actions
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Parameters:
+  customLambdaRole:
+    Type: String
+    Description: Role of Lambda function
+    Default: ''
+
+Resources:
+  directoryStartSyncFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: directory-delete-data
+      CodeUri: ./src/handlers/
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Description: 'Função que deleta registros que foram deletados do Diretório Central (precisa ser chamada no final do processo)'
+      MemorySize: 512
+      Timeout: 90
+      Role: !Ref customLambdaRole
+      Architectures:
+        - arm64

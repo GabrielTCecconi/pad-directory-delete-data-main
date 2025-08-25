@@ -1,0 +1,5 @@
+service:
+  name: sam-service
+  identifier: samservice
+  orgIdentifier: default
+  projectIdentifier: samproject

@@ -24,18 +24,6 @@ pipeline:
               - stepGroup:
                   steps:
                     - step:
-                        type: Background
-                        name: dind
-                        identifier: dind
-                        spec:
-                          connectorRef: account.harnessImage
-                          image: docker:dind
-                          shell: Sh
-                          privileged: true
-                        when:
-                          stageStatus: Success
-                        failureStrategies: []
-                    - step:
                         type: DownloadManifests
                         name: DownloadManifests
                         identifier: DownloadManifests

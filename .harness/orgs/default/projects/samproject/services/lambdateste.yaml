@@ -1,0 +1,5 @@
+service:
+  name: lambda-teste
+  identifier: lambdateste
+  orgIdentifier: default
+  projectIdentifier: samproject

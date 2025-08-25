@@ -1,0 +1,12 @@
+infrastructureDefinition:
+  name: sam-infra
+  identifier: saminfra
+  orgIdentifier: default
+  projectIdentifier: samproject
+  environmentRef: homolog
+  deploymentType: AWS_SAM
+  type: AWS_SAM
+  spec:
+    connectorRef: awsconnector
+    region: us-east-1
+  allowSimultaneousDeployments: false

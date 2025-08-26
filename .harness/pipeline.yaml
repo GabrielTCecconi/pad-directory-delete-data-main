@@ -36,7 +36,7 @@ pipeline:
                     command: |-
                       node -v
                       npm --version
-                      apt-get update && apt-get install -y zip
+
                       if [ -f src/handlers/package-lock.json ]; then
                         npm ci --prefix src/handlers
                       else
@@ -69,6 +69,7 @@ pipeline:
                     command: |-
                       set -e
 
+                      apt-get update && apt-get install -y zip
                       ( cd src/handlers && zip -r ../../build.zip . \
                           -x '*/__tests__/*' '*.test.*' '*/test/*' '*/__snapshots__/*' )
                       ls -lh build.zip

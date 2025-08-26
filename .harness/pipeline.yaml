@@ -60,6 +60,20 @@ pipeline:
                       SNYK_TOKEN: <+secrets.getValue("SNYK_TOKEN")>
               - step:
                   type: Run
+                  name: zip
+                  identifier: zip
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: node:20
+                    shell: Sh
+                    command: |-
+                      apt-get update && apt-get install -y zip
+                      ( cd src/handlers && zip -r ../../build.zip . \
+                          -x '*/__tests__/*' '*.test.*' '*/test/*' '*/__snapshots__/*' )
+                      ls -lh build.zip
+                contextType: Pipeline
+              - step:
+                  type: Run
                   name: S3Upload
                   identifier: S3Upload
                   spec:
@@ -68,11 +82,6 @@ pipeline:
                     shell: Sh
                     command: |-
                       set -e
-
-                      apt-get update && apt-get install -y zip
-                      ( cd src/handlers && zip -r ../../build.zip . \
-                          -x '*/__tests__/*' '*.test.*' '*/test/*' '*/__snapshots__/*' )
-                      ls -lh build.zip
 
                       aws sts get-caller-identity
                       aws s3 ls "s3://${ARTIFACT_BUCKET}" >/dev/null

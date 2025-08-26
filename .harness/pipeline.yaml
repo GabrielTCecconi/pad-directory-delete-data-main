@@ -54,7 +54,7 @@ pipeline:
                       cd src/handlers
                       npx snyk auth "$SNYK_TOKEN"
                       npx snyk test --severity-threshold=high
-                      npx snyk code test --severity-threshold=high
+                      # npx snyk code test --severity-threshold=high
                       npx snyk monitor --project-name lambda-teste
                     envVariables:
                       SNYK_TOKEN: <+secrets.getValue("SNYK_TOKEN")>

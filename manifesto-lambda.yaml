@@ -1,0 +1,7 @@
+# Following are the minimum set of parameters required to create an AWS Lambda Function Definition.
+# Please make sure your uploaded manifest file includes all of them.
+
+functionName: app-node-pipe
+handler: index.handler
+role: arn:aws:iam::725510651649:role/lambda-teste-role
+runtime: nodejs18.x

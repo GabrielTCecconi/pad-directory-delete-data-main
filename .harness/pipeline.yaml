@@ -48,14 +48,13 @@ pipeline:
                       ls -lh build.zip
               - step:
                   type: S3Upload
-                  name: S3Upload_1
+                  name: S3Upload-build
                   identifier: S3Upload_1
                   spec:
                     connectorRef: awsconnector
                     region: us-east-1
                     bucket: bucket-sam-teste
                     sourcePath: build.zip
-                    target: app-node-pipe/
     - stage:
         name: lambda-app
         identifier: lambdaapp

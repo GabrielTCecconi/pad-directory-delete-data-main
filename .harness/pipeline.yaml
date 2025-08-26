@@ -6,73 +6,85 @@ pipeline:
   tags: {}
   stages:
     - stage:
-        name: sam-stage
-        identifier: samstage
+        name: build-setup
+        identifier: buildsetup
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run Node setup
+                  identifier: Run_Node_setup
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: node:20
+                    shell: Bash
+                    command: |-
+                      node -v
+                      npm --version
+                      apt-get update && apt-get install -y zip
+                      if [ -f src/handlers/package-lock.json ]; then
+                        npm ci --prefix src/handlers
+                      else
+                        npm i --prefix src/handlers
+                      fi
+                      npm test --prefix app
+                      (cd src/handlers && zip -r ../../build.zip . -x "**/__tests__/**" "**/*.test.*" "**/test/**")
+                      ls -lh build.zip
+              - step:
+                  type: S3Upload
+                  name: S3Upload_1
+                  identifier: S3Upload_1
+                  spec:
+                    connectorRef: awsconnector
+                    region: us-east-1
+                    bucket: bucket-sam-teste
+                    sourcePath: build.zip
+                    target: app-node-pipe/build.zip
+    - stage:
+        name: lambda-app
+        identifier: lambdaapp
         description: ""
         type: Deployment
         spec:
-          deploymentType: AWS_SAM
+          deploymentType: AwsLambda
           service:
-            serviceRef: samservice
+            serviceRef: lambdateste
           environment:
             environmentRef: homolog
             deployToAll: false
             infrastructureDefinitions:
-              - identifier: saminfra
+              - identifier: infralambda
           execution:
             steps:
-              - stepGroup:
-                  steps:
-                    - step:
-                        type: DownloadManifests
-                        name: DownloadManifests
-                        identifier: DownloadManifests
-                        spec: {}
-                        failureStrategies: []
-                    - step:
-                        type: AwsSamBuild
-                        name: SAM Build
-                        identifier: SAM_Build
-                        spec:
-                          connectorRef: account.harnessImage
-                          image: harnessdev/sam-build:1.82.0-latest
-                          imagePullPolicy: Always
-                          buildCommandOptions:
-                            - "--use-container"
-                        when:
-                          stageStatus: Success
-                        failureStrategies: []
-                    - step:
-                        type: AwsSamDeploy
-                        name: SAM Deploy
-                        identifier: SAM_Deploy
-                        spec:
-                          connectorRef: account.harnessImage
-                          image: harnessdev/sam-deploy:1.82.0-latest
-                          imagePullPolicy: Always
-                          stackName: sam-deploy
-                          deployCommandOptions:
-                            - "--parameter-overrides customLambdaRole=<+homolog.variables.LAMBDA_ROLE>"
-                            - "--stack-name <+homolog.variables.STACK_NAME>"
-                            - "--region <+homolog.variables.AWS_REGION>"
-                            - "--capabilities CAPABILITY_IAM"
-                            - "--s3-bucket <+homolog.variables.ARTIFACT_BUCKET>"
-                            - "--no-fail-on-empty-changeset "
-                            - "--on-failure DELETE"
-                            - "--no-confirm-changeset"
-                        when:
-                          stageStatus: Success
-                        timeout: 10m
-                  name: SAM Step Group
-                  identifier: sam_step_group
-                  sharedPaths:
-                    - /var/run
-                    - /var/lib/docker
-                  stepGroupInfra:
-                    type: KubernetesDirect
-                    spec:
-                      connectorRef: <+input>
-                      namespace: default
+              - step:
+                  type: AwsLambdaDeploy
+                  name: Deploy Lambda
+                  identifier: Deploy_Lambda
+                  spec: {}
+                  timeout: 10m
+                  failureStrategies:
+                    - onFailure:
+                        errors:
+                          - AllErrors
+                        action:
+                          type: Ignore
+                  strategy:
+                    parallelism: 1
             rollbackSteps: []
         tags: {}
         failureStrategies:
@@ -80,4 +92,10 @@ pipeline:
               errors:
                 - AllErrors
               action:
-                type: StageRollback
+                type: Ignore
+  properties:
+    ci:
+      codebase:
+        connectorRef: account.Github
+        repoName: pad-directory-delete-data-main
+        build: <+input>

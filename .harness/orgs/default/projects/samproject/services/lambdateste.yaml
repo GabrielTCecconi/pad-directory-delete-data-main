@@ -3,3 +3,31 @@ service:
   identifier: lambdateste
   orgIdentifier: default
   projectIdentifier: samproject
+  serviceDefinition:
+    spec:
+      manifests:
+        - manifest:
+            identifier: testemanifesto
+            type: AwsLambdaFunctionDefinition
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.Github
+                  gitFetchType: Branch
+                  paths:
+                    - manifesto-lambda.yaml
+                  repoName: pad-directory-delete-data-main
+                  branch: main
+      artifacts:
+        primary:
+          primaryArtifactRef: <+input>
+          sources:
+            - spec:
+                connectorRef: awsconnector
+                bucketName: bucket-sam-teste
+                region: us-east-1
+                filePath: app-node-pipe/build.zip
+              identifier: build
+              type: AmazonS3
+    type: AwsLambda

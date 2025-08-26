@@ -1,0 +1,12 @@
+infrastructureDefinition:
+  name: infra-lambda
+  identifier: infralambda
+  orgIdentifier: default
+  projectIdentifier: samproject
+  environmentRef: homolog
+  deploymentType: AwsLambda
+  type: AwsLambda
+  spec:
+    connectorRef: awsconnector
+    region: us-east-1
+  allowSimultaneousDeployments: false

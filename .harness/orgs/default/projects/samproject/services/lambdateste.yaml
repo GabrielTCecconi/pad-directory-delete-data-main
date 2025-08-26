@@ -27,7 +27,7 @@ service:
                 connectorRef: awsconnector
                 bucketName: bucket-sam-teste
                 region: us-east-1
-                filePath: app-node-pipe/build.zip
+                filePath: app-lambda/build.zip
               identifier: build
               type: AmazonS3
     type: AwsLambda

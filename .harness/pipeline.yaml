@@ -47,14 +47,24 @@ pipeline:
                           -x '*/__tests__/*' '*.test.*' '*/test/*' '*/__snapshots__/*' )
                       ls -lh build.zip
               - step:
-                  type: S3Upload
-                  name: S3Upload-build
-                  identifier: S3Upload_1
+                  type: Run
+                  name: S3Upload
+                  identifier: S3Upload
                   spec:
-                    connectorRef: awsconnector
-                    region: us-east-1
-                    bucket: bucket-sam-teste
-                    sourcePath: build.zip
+                    connectorRef: account.harnessImage
+                    image: docker.io/amazon/aws-cli:2.15.46
+                    shell: Sh
+                    command: |-
+                      set -e
+                      aws sts get-caller-identity
+                      aws s3 ls "s3://${ARTIFACT_BUCKET}" >/dev/null
+                      aws s3 cp build.zip "s3://${ARTIFACT_BUCKET}/${ARTIFACT_KEY}" --only-show-errors
+                    envVariables:
+                      ARTIFACT_KEY: app-lambda/build.zip
+                      ARTIFACT_BUCKET: bucket-sam-teste
+                      AWS_ACCESS_KEY_ID: <+secrets.getValue("AWS_access_key_ID")>
+                      AWS_SECRET_ACCESS_KEY: <+secrets.getValue("AWS_secret_access_key")>
+                      AWS_SESSION_TOKEN: <+secrets.getValue("AWS_session_token")>
     - stage:
         name: lambda-app
         identifier: lambdaapp

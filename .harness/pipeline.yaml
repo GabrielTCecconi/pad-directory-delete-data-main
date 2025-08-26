@@ -55,7 +55,7 @@ pipeline:
                     region: us-east-1
                     bucket: bucket-sam-teste
                     sourcePath: build.zip
-                    target: app-node-pipe/build.zip
+                    target: app-node-pipe/
     - stage:
         name: lambda-app
         identifier: lambdaapp

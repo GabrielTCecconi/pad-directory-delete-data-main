@@ -42,10 +42,22 @@ pipeline:
                       else
                         npm i --prefix src/handlers
                       fi
-
-                      ( cd src/handlers && zip -r ../../build.zip . \
-                          -x '*/__tests__/*' '*.test.*' '*/test/*' '*/__snapshots__/*' )
-                      ls -lh build.zip
+              - step:
+                  type: Run
+                  name: Snyk scan
+                  identifier: Snyk_scan
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: node:20
+                    shell: Sh
+                    command: |-
+                      cd src/handlers
+                      npx snyk auth "$SNYK_TOKEN"
+                      npx snyk test --severity-threshold=high
+                      npx snyk code test --severity-threshold=high
+                      npx snyk monitor --project-name lambda-teste
+                    envVariables:
+                      SNYK_TOKEN: <+secrets.getValue("SNYK_TOKEN")>
               - step:
                   type: Run
                   name: S3Upload
@@ -56,6 +68,11 @@ pipeline:
                     shell: Sh
                     command: |-
                       set -e
+
+                      ( cd src/handlers && zip -r ../../build.zip . \
+                          -x '*/__tests__/*' '*.test.*' '*/test/*' '*/__snapshots__/*' )
+                      ls -lh build.zip
+
                       aws sts get-caller-identity
                       aws s3 ls "s3://${ARTIFACT_BUCKET}" >/dev/null
                       aws s3 cp build.zip "s3://${ARTIFACT_BUCKET}/${ARTIFACT_KEY}" --only-show-errors

@@ -64,6 +64,14 @@ pipeline:
           deploymentType: AwsLambda
           service:
             serviceRef: lambdateste
+            serviceInputs:
+              serviceDefinition:
+                type: AwsLambda
+                spec:
+                  artifacts:
+                    primary:
+                      primaryArtifactRef: <+input>
+                      sources: <+input>
           environment:
             environmentRef: homolog
             deployToAll: false

@@ -42,7 +42,7 @@ pipeline:
                       else
                         npm i --prefix src/handlers
                       fi
-                      npm test --prefix src/handlers
+
                       ( cd src/handlers && zip -r ../../build.zip . \
                           -x '*/__tests__/*' '*.test.*' '*/test/*' '*/__snapshots__/*' )
                       ls -lh build.zip

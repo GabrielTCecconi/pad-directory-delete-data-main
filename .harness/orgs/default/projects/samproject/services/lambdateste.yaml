@@ -16,7 +16,7 @@ service:
                   connectorRef: account.Github
                   gitFetchType: Branch
                   paths:
-                    - manifesto-lambda.yaml
+                    - lambda/manifesto-lambda.yaml
                   repoName: pad-directory-delete-data-main
                   branch: main
       artifacts:

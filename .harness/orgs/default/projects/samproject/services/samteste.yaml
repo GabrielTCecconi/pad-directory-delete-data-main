@@ -1,0 +1,5 @@
+service:
+  name: sam-teste
+  identifier: samteste
+  orgIdentifier: default
+  projectIdentifier: samproject

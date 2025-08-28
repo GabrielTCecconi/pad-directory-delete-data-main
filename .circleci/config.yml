@@ -42,12 +42,12 @@ jobs:
       - attach_workspace:
           at: .
       - aws-cli/setup:
-        profile_name: default
+          profile_name: default
       - aws-sam/install
       - aws-sam/build:
-        validate: true
-        template: template.yaml
-        debug: true
+          validate: true
+          template: template.yaml
+          debug: true
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/guides/orchestrate/workflows/ & https://circleci.com/docs/reference/configuration-reference/#workflows

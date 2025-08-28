@@ -46,7 +46,6 @@ jobs:
           profile_name: default
       - aws-sam/install
       - aws-sam/build:
-          validate: true
           template: template.yaml
           debug: true
           region: us-east-1

@@ -41,6 +41,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - run: cp infra/samconfig.toml ./samconfig.toml
       - aws-cli/setup:
           profile_name: default
       - aws-sam/install
@@ -48,6 +49,7 @@ jobs:
           validate: true
           template: template.yaml
           debug: true
+          region: us-east-1
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/guides/orchestrate/workflows/ & https://circleci.com/docs/reference/configuration-reference/#workflows

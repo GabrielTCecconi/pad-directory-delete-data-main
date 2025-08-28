@@ -1,0 +1,27 @@
+inputSet:
+  name: git-input
+  identifier: gitinput
+  orgIdentifier: default
+  projectIdentifier: samproject
+  pipeline:
+    identifier: sampipeline
+    stages:
+      - stage:
+          identifier: lambdaapp
+          type: Deployment
+          spec:
+            service:
+              serviceInputs:
+                serviceDefinition:
+                  type: AwsLambda
+                  spec:
+                    artifacts:
+                      primary:
+                        primaryArtifactRef: build
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>

@@ -45,9 +45,11 @@ jobs:
       - run: export AWS_DEFAULT_REGION=us-east-1
       - aws-cli/setup:
           profile_name: default
+      - run: aws sts get-caller-identity
       - aws-sam/install
       - aws-sam/build:
           validate: false
+          use_container: false
           template: template.yaml
           debug: true
           region: us-east-1

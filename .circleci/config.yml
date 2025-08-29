@@ -45,16 +45,16 @@ jobs:
               npm i --prefix src/handlers
             fi
             echo "..." > info.txt
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
+      # - persist_to_workspace:
+      #     root: .
+      #     paths:
+      #       - .
   sam_deploy:
     docker:
       - image: cimg/node:20.19
     steps:
-      - attach_workspace:
-          at: .
+      # - attach_workspace:
+      #     at: .
       - run: cp infra/samconfig.toml ./samconfig.toml
       - aws-cli/setup
       - run: 
@@ -63,7 +63,6 @@ jobs:
             pwd
             ls -la
             ls -la src/handlers
-            
       - run: aws sts get-caller-identity
       - aws-sam/install
       - aws-sam/build:

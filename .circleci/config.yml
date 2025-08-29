@@ -44,25 +44,18 @@ jobs:
             else
               npm i --prefix src/handlers
             fi
-            echo "..." > info.txt
-      # - persist_to_workspace:
-      #     root: .
-      #     paths:
-      #       - .
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
   sam_deploy:
     docker:
       - image: cimg/node:20.19
     steps:
-      # - attach_workspace:
-      #     at: .
+      - attach_workspace:
+          at: .
       - run: cp infra/samconfig.toml ./samconfig.toml
       - aws-cli/setup
-      - run: 
-          name: debug aws
-          command: |
-            pwd
-            ls -la
-            ls -la src/handlers
       - run: aws sts get-caller-identity
       - aws-sam/install
       - aws-sam/build:
@@ -71,15 +64,17 @@ jobs:
           template: template.yaml
           debug: true
           region: us-east-1
-      # - aws-sam/deploy:
-      #     stack_name: pad-directory-delete-data
-      #     region: us-east-1
-      #     no_confirm_changeset: true
-      #     capabilities: "CAPABILITY_IAM"
-      #     parameter_overrides: |
-      #       Environment=prod
-      #       NodejsHandlerCodeUri=src/handlers/
-      #     debug: true
+      - aws-sam/deploy:
+          region: us-east-1
+          no_confirm_changeset: true
+          capabilities: "CAPABILITY_IAM"
+          s3_bucket: $s3_bucket
+          stack_name: $stack_name
+          debug: true
+          parameter_overrides: |
+            customLambdaRole=$lambda_role_arn
+          arguments: "--on-failure DELETE"
+          
 
 
     

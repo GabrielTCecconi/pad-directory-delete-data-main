@@ -68,7 +68,7 @@ jobs:
       - aws-sam/deploy:
           region: us-east-1
           capabilities: "CAPABILITY_IAM"
-          s3_bucket: $s3_bucket
+          s3_bucket: bucket-sam-teste
           stack_name: $stack_name
           debug: true
           parameter_overrides: |

@@ -69,6 +69,7 @@ jobs:
       - aws-sam/install
       - aws-sam/build:
           validate: false
+          use_container: false
           template: template.yaml
           debug: true
           region: us-east-1

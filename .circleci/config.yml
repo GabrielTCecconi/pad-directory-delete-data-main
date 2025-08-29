@@ -42,7 +42,7 @@ jobs:
       - attach_workspace:
           at: .
       - run: cp infra/samconfig.toml ./samconfig.toml
-      - run: export AWS_DEFAULT_REGION=us-east-1
+      - aws-cli/install
       - aws-cli/setup:
           profile_name: default
       - run: aws sts get-caller-identity

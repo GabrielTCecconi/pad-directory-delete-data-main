@@ -56,6 +56,7 @@ jobs:
       - run: cp infra/samconfig.toml ./samconfig.toml
       - aws-cli/setup
       - run: aws sts get-caller-identity
+      - run: aws s3 ls s3://bucket-sam-teste --profile default
       - aws-sam/install
       - aws-sam/build:
           validate: false

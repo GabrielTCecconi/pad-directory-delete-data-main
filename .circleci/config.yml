@@ -17,7 +17,7 @@ workflows:
           requires:
             - build_node
           context:
-            - aws-prod # contexto com AWS_* credenciais
+            - aws-credentials # contexto com AWS_* credenciais
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/guides/orchestrate/jobs-steps/#jobs-overview & https://circleci.com/docs/reference/configuration-reference/#jobs
@@ -61,7 +61,6 @@ jobs:
           command: |
             aws --version
             aws configure list
-            cat ./samconfig.toml
             ls -la
             pwd
             echo $AWS_ACCESS_KEY_ID

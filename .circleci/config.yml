@@ -59,12 +59,8 @@ jobs:
       - run: 
           name: debug aws
           command: |
-            aws --version
-            aws configure list
-            ls -la
             pwd
-            echo $AWS_ACCESS_KEY_ID
-            echo $AWS_DEFAULT_REGION
+            ls -la
       - run: aws sts get-caller-identity
       - aws-sam/install
       - aws-sam/build:
@@ -73,6 +69,15 @@ jobs:
           template: template.yaml
           debug: true
           region: us-east-1
+      # - aws-sam/deploy:
+      #     stack_name: pad-directory-delete-data
+      #     region: us-east-1
+      #     no_confirm_changeset: true
+      #     capabilities: "CAPABILITY_IAM"
+      #     parameter_overrides: |
+      #       Environment=prod
+      #       NodejsHandlerCodeUri=src/handlers/
+      #     debug: true
 
 
     

@@ -42,9 +42,17 @@ jobs:
       - attach_workspace:
           at: .
       - run: cp infra/samconfig.toml ./samconfig.toml
-      - aws-cli/install
-      - aws-cli/setup:
-          profile_name: default
+      - aws-cli/setup
+      - run: 
+          name: debug aws
+          command: |
+            aws --version
+            aws configure list
+            cat ./samconfig.toml
+            ls -la
+            pwd
+            echo $AWS_ACCESS_KEY_ID
+            echo $AWS_DEFAULT_REGION
       - run: aws sts get-caller-identity
       - aws-sam/install
       - aws-sam/build:

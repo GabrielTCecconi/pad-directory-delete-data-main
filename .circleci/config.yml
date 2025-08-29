@@ -55,8 +55,17 @@ jobs:
           at: .
       - run: cp infra/samconfig.toml ./samconfig.toml
       - aws-cli/setup
-      - run: aws sts get-caller-identity
-      - run: aws s3 ls s3://bucket-sam-teste
+      - run: |
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile default
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile default
+          [ -n "$AWS_SESSION_TOKEN" ] && aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile default
+          aws configure set region "${AWS_REGION:-us-east-1}" --profile default
+      - run:
+          name: Teste Permissões AWS
+          command: |
+           aws sts get-caller-identity --profile default
+           aws s3 ls s3://bucket-sam-teste --profile default
+      - run: 
       - aws-sam/install
       - aws-sam/build:
           validate: false

@@ -50,7 +50,7 @@ jobs:
             - .
   sam_deploy:
     docker:
-      - image: cimg/python:3.12
+      - image: cimg/node:20.19
     steps:
       - attach_workspace:
           at: .
@@ -69,7 +69,6 @@ jobs:
       - aws-sam/install
       - aws-sam/build:
           validate: false
-          use_container: false
           template: template.yaml
           debug: true
           region: us-east-1

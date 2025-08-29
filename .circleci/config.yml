@@ -66,14 +66,13 @@ jobs:
           region: us-east-1
       - aws-sam/deploy:
           region: us-east-1
-          no_confirm_changeset: true
           capabilities: "CAPABILITY_IAM"
           s3_bucket: $s3_bucket
           stack_name: $stack_name
           debug: true
           parameter_overrides: |
             customLambdaRole=$lambda_role_arn
-          arguments: "--on-failure DELETE"
+          arguments: "--no-confirm-changeset --on-failure DELETE"
           
 
 

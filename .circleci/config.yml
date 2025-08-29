@@ -6,6 +6,19 @@ orbs:
   aws-cli: circleci/aws-cli@5.4.1  # orb oficial da AWS CLI
   aws-sam: circleci/aws-sam-serverless@6.1.0  # orb oficial do SAM
 
+# Orchestrate jobs using workflows
+# See: https://circleci.com/docs/guides/orchestrate/workflows/ & https://circleci.com/docs/reference/configuration-reference/#workflows
+workflows:
+  pad-workflow: # This is the name of the workflow, feel free to change it to better match your workflow.
+    # Inside the workflow, you define the jobs you want to run.
+    jobs:
+      - build_node
+      - sam_deploy:
+          requires:
+            - build_node
+          context:
+            - aws-prod # contexto com AWS_* credenciais
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/guides/orchestrate/jobs-steps/#jobs-overview & https://circleci.com/docs/reference/configuration-reference/#jobs
 jobs:
@@ -62,15 +75,5 @@ jobs:
           debug: true
           region: us-east-1
 
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/guides/orchestrate/workflows/ & https://circleci.com/docs/reference/configuration-reference/#workflows
-workflows:
-  pad-workflow: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
-    jobs:
-      - build_node
-      - sam_deploy:
-          requires:
-            - build_node
-          context: aws-prod # contexto com AWS_* credenciais
+
     

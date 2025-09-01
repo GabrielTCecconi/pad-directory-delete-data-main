@@ -67,7 +67,8 @@ jobs:
             pwd
             ls -la
       - snyk_scan/install
-      - snyk_scan/scan
+      - snyk_scan/scan:
+          project: pad-delete-circle
 
   sam_deploy:
     docker:

@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@5.4.1  # orb oficial da AWS CLI
   aws-sam: circleci/aws-sam-serverless@6.1.0  # orb oficial do SAM
+  snyk_scan
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/guides/orchestrate/workflows/ & https://circleci.com/docs/reference/configuration-reference/#workflows
@@ -11,12 +12,15 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - build_node
-      - sam_deploy:
+      - snyk_scan:
           requires:
             - build_node
-          context:
-            - aws-credentials # contexto com AWS_* credenciais
-            - aws-infra # contexto com variáveis de infraestrutura
+      # - sam_deploy:
+      #     requires:
+      #       - snyk_scan
+      #     context:
+      #       - aws-credentials # contexto com AWS_* credenciais
+      #       - aws-infra # contexto com variáveis de infraestrutura
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/guides/orchestrate/jobs-steps/#jobs-overview & https://circleci.com/docs/reference/configuration-reference/#jobs
@@ -47,12 +51,19 @@ jobs:
           root: .
           paths:
             - .
-  sam_deploy:
+  snyk_scan:
     docker:
       - image: cimg/node:20.19
     steps:
       - attach_workspace:
           at: .
+      - run: snyk_scan/install
+      - run: snyk_scan/scan
+
+  sam_deploy:
+    docker:
+      - image: cimg/node:20.19
+    steps:
       - run: cp infra/samconfig.toml ./samconfig.toml
       - aws-cli/setup
       - run: |

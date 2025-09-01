@@ -15,6 +15,8 @@ workflows:
       - snyk_scan:
           requires:
             - build_node
+          context:
+            - snyk-setup
       # - sam_deploy:
       #     requires:
       #       - snyk_scan

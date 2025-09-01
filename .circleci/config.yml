@@ -61,8 +61,8 @@ jobs:
       - attach_workspace:
           at: .
       - run: cd src/handlers
-      - run: snyk_scan/install
-      - run: snyk_scan/scan
+      - snyk_scan/install
+      - snyk_scan/scan
 
   sam_deploy:
     docker:

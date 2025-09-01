@@ -57,10 +57,15 @@ jobs:
   snyk_scan:
     docker:
       - image: cimg/node:20.19
+    working_directory: ~/src/handlers
     steps:
       - attach_workspace:
           at: .
-      - run: cd src/handlers
+      - run:
+          name: debug
+          command: |
+            pwd
+            ls -la
       - snyk_scan/install
       - snyk_scan/scan
 

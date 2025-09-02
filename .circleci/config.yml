@@ -98,8 +98,8 @@ jobs:
           command: |
            aws sts get-caller-identity --profile default
            aws s3 ls s3://bucket-sam-teste --profile default
-      - aws-sam/install
-      - aws-sam/build:
+      - sam/install
+      - sam/build:
           validate: false
           use_container: true
           template: template.yaml

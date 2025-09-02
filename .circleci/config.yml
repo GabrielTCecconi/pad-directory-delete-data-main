@@ -105,7 +105,7 @@ jobs:
           template: template.yaml
           debug: true
           region: us-east-1
-      - aws-sam/deploy:
+      - sam/deploy:
           region: us-east-1
           capabilities: "CAPABILITY_IAM"
           s3_bucket: bucket-sam-teste

@@ -1,0 +1,237 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@5.4.1            # orb oficial AWS CLI
+  aws-sam: circleci/aws-sam-serverless@6.1.0 # orb oficial SAM
+  snyk_scan: snyk/snyk@2.3.0                 # orb oficial Snyk
+
+# -----------------------------------------
+# WORKFLOWS
+# -----------------------------------------
+workflows:
+  pad-workflow:
+    jobs:
+      - build_and_package:
+          context:
+            - aws-credentials              # ALTERAÇÃO: precisa credencial p/ 'sam package' no CI
+            - aws-infra                    # ALTERAÇÃO: fornece ARTIFACT_BUCKET etc.
+      - snyk_scan_job:
+          requires:
+            - build_and_package
+          context:
+            - snyk-setup
+      - sam_local_test:
+          requires:
+            - build_and_package
+      - sam_deploy:
+          name: sam_deploy_dev
+          env: dev                         # ALTERAÇÃO: parâmetro de ambiente
+          stack_name: << pipeline.parameters.stack_name_dev >>
+          requires:
+            - snyk_scan_job
+            - sam_local_test
+          context:
+            - aws-credentials
+            - aws-infra
+          filters:                         # ALTERAÇÃO: deploy dev só em branch
+            branches: { only: main }
+            tags: { ignore: /.*/ }
+      - sam_deploy:
+          name: sam_deploy_hml
+          env: hml
+          stack_name: << pipeline.parameters.stack_name_hml >>
+          requires:
+            - snyk_scan_job
+          context:
+            - aws-credentials
+            - aws-infra
+          filters:                         # ALTERAÇÃO: hml por tag release-candidate
+            branches: { ignore: /.*/ }
+            tags: { only: /^v\d+\.\d+\.\d+-rc\.\d+$/ }
+      - sam_deploy:
+          name: sam_deploy_prd
+          env: prd
+          stack_name: << pipeline.parameters.stack_name_prd >>
+          requires:
+            - snyk_scan_job
+          context:
+            - aws-credentials
+            - aws-infra
+          filters:                         # ALTERAÇÃO: prd por tag final
+            branches: { ignore: /.*/ }
+            tags: { only: /^v\d+\.\d+\.\d+$/ }
+
+# -----------------------------------------
+# PIPELINE PARAMETERS
+# -----------------------------------------
+parameters:                                  # ALTERAÇÃO: parâmetros para nomes de stack
+  stack_name_dev:
+    type: string
+    default: pad-app-dev
+  stack_name_hml:
+    type: string
+    default: pad-app-hml
+  stack_name_prd:
+    type: string
+    default: pad-app-prd
+
+# -----------------------------------------
+# JOBS
+# -----------------------------------------
+jobs:
+  build_and_package:
+    docker:
+      - image: cimg/node:20.19
+    working_directory: ~/project             # ALTERAÇÃO: padroniza paths
+    steps:
+      - checkout
+      - run:
+          name: Node info
+          command: |
+            node -v
+            npm --version
+      - restore_cache:                       # ALTERAÇÃO: cache npm
+          keys:
+            - v1-npm-{{ checksum "src/handlers/package-lock.json" }}
+            - v1-npm-
+      - run:
+          name: Instalar dependências
+          command: |
+            if [ -f src/handlers/package-lock.json ]; then
+              npm ci --prefix src/handlers
+            else
+              npm i --prefix src/handlers
+            fi
+      - save_cache:                          # ALTERAÇÃO: salva cache npm
+          key: v1-npm-{{ checksum "src/handlers/package-lock.json" }}
+          paths:
+            - ~/.npm
+      - run:
+          name: Lint e testes
+          command: |
+            npm run -s lint --prefix src/handlers || echo "sem lint"
+            npm test --prefix src/handlers --if-present
+      - aws-sam/install                      # ALTERAÇÃO: usar SAM no CI
+      - run:
+          name: Validações SAM
+          command: |
+            sam validate -t template.yaml
+            pipx install cfn-lint >/dev/null 2>&1 || pip install cfn-lint
+            cfn-lint template.yaml
+      - run:
+          name: Build único SAM               # ALTERAÇÃO: build só no CI
+          command: |
+            sam build --cached --use-container=false -t template.yaml
+      - aws-cli/setup                        # ALTERAÇÃO: necessário para 'sam package'
+      - run:
+          name: Config AWS CLI
+          command: |
+            aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile default
+            aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile default
+            [ -n "$AWS_SESSION_TOKEN" ] && aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile default
+            aws configure set region "${AWS_REGION:-us-east-1}" --profile default
+      - run:
+          name: Package (gera packaged.yaml imutável)
+          command: |
+            : "${ARTIFACT_BUCKET:?Defina ARTIFACT_BUCKET no context aws-infra}"  # ALTERAÇÃO: fail fast
+            GIT_SHA="$(git rev-parse --short HEAD)"
+            sam package \
+              --s3-bucket "$ARTIFACT_BUCKET" \
+              --s3-prefix "sam/${GIT_SHA}" \
+              --output-template-file packaged.yaml \
+              --region "${AWS_REGION:-us-east-1}"
+      - persist_to_workspace:                # ALTERAÇÃO: compartilha artefatos entre jobs
+          root: .
+          paths:
+            - packaged.yaml
+            - .aws-sam
+            - src/events
+            - template.yaml
+      - store_artifacts:                     # ALTERAÇÃO: disponibiliza o template empacotado
+          path: packaged.yaml
+          destination: packaged.yaml
+
+  snyk_scan_job:
+    docker:
+      - image: cimg/node:20.19
+    working_directory: ~/project/src/handlers
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: Debug paths
+          command: |
+            pwd && ls -la
+      - snyk_scan/install
+      - snyk_scan/scan:
+          project: pad-delete-circle
+          severity-threshold: high           # ALTERAÇÃO: threshold alto no Snyk
+          fail-on-issues: true               # ALTERAÇÃO: quebra pipeline se achar vulnerabilidade
+
+  sam_local_test:                            # ALTERAÇÃO: testes locais com 'sam local'
+    docker:
+      - image: cimg/node:20.19
+    working_directory: ~/project
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - setup_remote_docker:                 # ALTERAÇÃO: necessário p/ 'sam local' rodar containers
+          version: 20.10.24
+      - aws-sam/install
+      - run:
+          name: Local invoke (exemplo)
+          command: |
+            FUNC_NAME="${FUNCTION_NAME:-Fn}"                # ALTERAÇÃO: permite sobrescrever via env
+            EVENT_FILE="${EVENT_FILE:-src/events/event.json}"
+            if [ ! -f "$EVENT_FILE" ]; then
+              echo '{}' > "$EVENT_FILE"                     # ALTERAÇÃO: fallback simples
+            fi
+            # Usa artefatos de .aws-sam/build gerados no job de build
+            sam local invoke "$FUNC_NAME" \
+              --event "$EVENT_FILE" \
+              --template-file ./.aws-sam/build/template.yaml || \
+            sam local invoke "$FUNC_NAME" --event "$EVENT_FILE" -t packaged.yaml
+
+  sam_deploy:
+    parameters:
+      env:
+        type: string
+      stack_name:
+        type: string
+    docker:
+      - image: cimg/node:20.19
+    working_directory: ~/project
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: Copiar samconfig
+          command: |
+            [ -f infra/samconfig.toml ] && cp infra/samconfig.toml ./samconfig.toml || true
+      - aws-cli/setup
+      - run:
+          name: Config AWS CLI
+          command: |
+            aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile default
+            aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile default
+            [ -n "$AWS_SESSION_TOKEN" ] && aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile default
+            aws configure set region "${AWS_REGION:-us-east-1}" --profile default
+      - run:
+          name: Teste Permissões AWS
+          command: |
+            aws sts get-caller-identity --profile default
+      - aws-sam/install
+      - run:
+          name: Deploy sem rebuild (usa packaged.yaml)
+          command: |
+            : "${lambda_role_arn:?Defina lambda_role_arn no context aws-infra}"   # ALTERAÇÃO: fail fast
+            sam deploy \
+              --template-file packaged.yaml \
+              --stack-name "<< parameters.stack_name >>" \
+              --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+              --no-confirm-changeset \
+              --region "${AWS_REGION:-us-east-1}" \
+              --parameter-overrides \
+                Stage=<< parameters.env >> \
+                customLambdaRole="$lambda_role_arn" \
+              --on-failure DELETE

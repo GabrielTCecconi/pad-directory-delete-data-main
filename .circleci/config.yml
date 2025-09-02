@@ -20,7 +20,7 @@ workflows:
           ENV_VAR: hml        # Parâmetro de ambiente
           requires:
             - build_node
-            - snyk_scan
+            - snyk_scan_job
           context:
             - aws-credentials
             - aws-infra

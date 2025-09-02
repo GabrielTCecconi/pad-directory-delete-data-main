@@ -15,8 +15,8 @@ workflows:
           context:
             - snyk-setup
       - sam_deploy:
-          AWS_REGION: us-east-1  # Parâmetro de região
-          STACK_NAME: pad-directory-delete-data-main # Parâmetro de nome da stack
+          AWS_REGION: sa-east-1  # Parâmetro de região
+          STACK_NAME: pad-directory-delete-data # Parâmetro de nome da stack
           ENV_VAR: hml        # Parâmetro de ambiente
           requires:
             - build_node
@@ -75,7 +75,7 @@ jobs:
     parameters:
         AWS_REGION:
           type: string
-          default: us-east-1
+          default: sa-east-1
         STACK_NAME:
           type: string
           default: pad-directory-delete-data
@@ -92,7 +92,7 @@ jobs:
           aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile default
           aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile default
           [ -n "$AWS_SESSION_TOKEN" ] && aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile default
-          aws configure set region "${AWS_REGION:-us-east-1}" --profile default
+          aws configure set region "${AWS_REGION:-sa-east-1}" --profile default
       - run:
           name: Teste Permissões AWS
           command: |

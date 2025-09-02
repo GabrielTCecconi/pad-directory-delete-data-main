@@ -98,6 +98,11 @@ jobs:
           command: |
            aws sts get-caller-identity --profile default
            aws s3 ls s3://bucket-sam-teste --profile default
+      - setup_remote_docker: # TESTE
+          version: 20.10.24
+      - run:
+          name: Teste Docker remoto
+          command: docker info
       - sam/install
       - sam/build:
           validate: false

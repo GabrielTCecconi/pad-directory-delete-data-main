@@ -60,7 +60,7 @@ jobs:
           paths:
             - .
 
-  snyk_scan:
+  snyk_scan_job:
     docker:
       - image: cimg/node:20.19
     working_directory: ~/project/src/handlers

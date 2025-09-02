@@ -112,6 +112,6 @@ jobs:
           stack_name: << parameters.STACK_NAME >>
           debug: true
           parameter_overrides: |
-            customLambdaRole=$lambda_role_arn
+            customLambdaRole=$LAMBDA_ROLE
           arguments: "--no-confirm-changeset --on-failure DELETE"
           

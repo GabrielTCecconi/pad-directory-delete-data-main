@@ -97,7 +97,7 @@ jobs:
           name: Teste Permissões AWS
           command: |
            aws sts get-caller-identity --profile default
-           aws s3 ls s3://bucket-sam-teste --profile default
+           aws s3 ls s3://${BUCKET_NAME} --profile default
       - sam/install
       - sam/build:
           validate: false

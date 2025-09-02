@@ -16,7 +16,7 @@ workflows:
             - snyk-setup
       - sam_deploy:
           AWS_REGION: us-east-1  # Parâmetro de região
-          STACK_NAME: pad-directory-delete-data # Parâmetro de nome da stack
+          STACK_NAME: pad-directory-delete-data-main # Parâmetro de nome da stack
           ENV_VAR: hml        # Parâmetro de ambiente
           requires:
             - build_node

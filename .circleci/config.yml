@@ -83,7 +83,7 @@ jobs:
           type: string
           default: dev
     docker:
-      - image: cimg/base:2025.09
+      - image: cimg/node:20.19
     steps:
       - checkout
       - run: cp infra/samconfig.toml ./samconfig.toml
@@ -98,15 +98,10 @@ jobs:
           command: |
            aws sts get-caller-identity --profile default
            aws s3 ls s3://bucket-sam-teste --profile default
-      - setup_remote_docker: # TESTE
-          version: 20.10.24
-      - run:
-          name: Teste Docker remoto
-          command: docker info
       - sam/install
       - sam/build:
           validate: false
-          use_container: true
+          use_container: false
           template: template.yaml
           debug: true
           region: us-east-1
@@ -114,7 +109,7 @@ jobs:
           region: us-east-1
           capabilities: "CAPABILITY_IAM"
           s3_bucket: bucket-sam-teste
-          stack_name: $stack_name
+          stack_name: << parameters.STACK_NAME >>
           debug: true
           parameter_overrides: |
             customLambdaRole=$lambda_role_arn

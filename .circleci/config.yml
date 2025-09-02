@@ -104,11 +104,11 @@ jobs:
           use_container: false
           template: template.yaml
           debug: true
-          region: us-east-1
+          region: << parameters.AWS_REGION >>
       - sam/deploy:
-          region: us-east-1
+          region: << parameters.AWS_REGION >>
           capabilities: "CAPABILITY_IAM"
-          s3_bucket: bucket-sam-teste
+          s3_bucket: "${BUCKET_NAME}"
           stack_name: << parameters.STACK_NAME >>
           debug: true
           parameter_overrides: |

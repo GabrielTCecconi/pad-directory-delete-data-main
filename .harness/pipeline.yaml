@@ -125,7 +125,7 @@ pipeline:
                         --stack-name ${STACK_NAME}
                     envVariables:
                       AWS_ACCESS_KEY_ID: <+secrets.getValue("AWS_access_key_ID")>
-                      AWS_SECRET_ACCESS_KEY: <+secrets.getValue("<+secrets.getValue("AWS_secret_access_key")>")>
+                      AWS_SECRET_ACCESS_KEY: <+secrets.getValue("AWS_secret_access_key")>
                       AWS_SESSION_TOKEN: <+secrets.getValue("AWS_session_token")>
                       LAMBDA_ROLE: arn:aws:iam::725510651649:role/lambda-default-ci
                       BUCKET_NAME: bucket-sam-teste

@@ -92,3 +92,5 @@ async function getParameterStoreValue(ssmClient, parameterName) {
     const response = await ssmClient.send(getParameterCommand);
     return response.Parameter.Value;
 }
+
+// CI Teste

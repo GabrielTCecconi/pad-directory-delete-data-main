@@ -112,12 +112,11 @@ pipeline:
                     connectorRef: account.harnessImage
                     image: amazon/aws-sam-cli:latest
                     shell: Sh
-                    command: |-
-                      sam build
-                      sam deploy --parameter-overrides customLambdaRole=${{ inputs.lambda_role }} \
-                          --no-confirm-changeset --on-failure DELETE --no-fail-on-empty-changeset \
-                          --s3-bucket ${{ inputs.bucket_name }} --capabilities CAPABILITY_IAM \
-                          --region ${{ secrets.aws_region }} --stack-name ${{ inputs.stack_name }}
+                    command: sam build
+                    envVariables:
+                      AWS_ACCESS_KEY_ID: <+secrets.getValue("AWS_access_key_ID")>
+                      AWS_SECRET_ACCESS_KEY: <+secrets.getValue("<+secrets.getValue("AWS_secret_access_key")>")>
+                      AWS_SESSION_TOKEN: <+secrets.getValue("AWS_session_token")>
   properties:
     ci:
       codebase:

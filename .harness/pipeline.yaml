@@ -112,7 +112,17 @@ pipeline:
                     connectorRef: account.harnessImage
                     image: public.ecr.aws/sam/build-nodejs20.x
                     shell: Sh
-                    command: sam build
+                    command: |-
+                      sam build
+                      sam deploy \
+                        --parameter-overrides \
+                        customLambdaRole=${LAMBDA_ROLE} \
+                        --no-confirm-changeset \
+                        --on-failure DELETE --no-fail-on-empty-changeset \
+                        --s3-bucket ${BUCKET_NAME} \
+                        --capabilities CAPABILITY_IAM \
+                        --region ${AWS_REGION} \
+                        --stack-name ${STACK_NAME}
                     envVariables:
                       AWS_ACCESS_KEY_ID: <+secrets.getValue("AWS_access_key_ID")>
                       AWS_SECRET_ACCESS_KEY: <+secrets.getValue("<+secrets.getValue("AWS_secret_access_key")>")>

@@ -110,7 +110,7 @@ pipeline:
                   identifier: Build_and_Deploy_SAM
                   spec:
                     connectorRef: account.harnessImage
-                    image: amazon/aws-sam-cli:latest
+                    image: public.ecr.aws/sam/build-nodejs20.x
                     shell: Sh
                     command: sam build
                     envVariables:

@@ -58,86 +58,66 @@ pipeline:
                       npx snyk monitor --all-projects --org=399c58fd-c05d-490c-86e3-b73b7a8d046d
                     envVariables:
                       SNYK_TOKEN: <+secrets.getValue("SNYK_TOKEN")>
-              - step:
-                  type: Run
-                  name: zip
-                  identifier: zip
-                  spec:
-                    connectorRef: account.harnessImage
-                    image: node:20
-                    shell: Sh
-                    command: |-
-                      apt-get update && apt-get install -y zip
-                      ( cd src/handlers && zip -r ../../build.zip . \
-                          -x '*/__tests__/*' '*.test.*' '*/test/*' '*/__snapshots__/*' )
-                      ls -lh build.zip
-                contextType: Pipeline
-              - step:
-                  type: Run
-                  name: S3Upload
-                  identifier: S3Upload
-                  spec:
-                    connectorRef: account.harnessImage
-                    image: docker.io/amazon/aws-cli:2.15.46
-                    shell: Sh
-                    command: |-
-                      set -e
-
-                      aws sts get-caller-identity
-                      aws s3 ls "s3://${ARTIFACT_BUCKET}" >/dev/null
-                      aws s3 cp build.zip "s3://${ARTIFACT_BUCKET}/${ARTIFACT_KEY}" --only-show-errors
-                    envVariables:
-                      ARTIFACT_KEY: app-lambda/build.zip
-                      ARTIFACT_BUCKET: bucket-sam-teste
-                      AWS_ACCESS_KEY_ID: <+secrets.getValue("AWS_access_key_ID")>
-                      AWS_SECRET_ACCESS_KEY: <+secrets.getValue("AWS_secret_access_key")>
-                      AWS_SESSION_TOKEN: <+secrets.getValue("AWS_session_token")>
     - stage:
-        name: lambda-app
-        identifier: lambdaapp
+        name: Aprovar-Deploy
+        identifier: AprovarDeploy
         description: ""
-        type: Deployment
+        type: Approval
         spec:
-          deploymentType: AwsLambda
-          service:
-            serviceRef: lambdateste
-            serviceInputs:
-              serviceDefinition:
-                type: AwsLambda
-                spec:
-                  artifacts:
-                    primary:
-                      primaryArtifactRef: <+input>
-                      sources: <+input>
-          environment:
-            environmentRef: homolog
-            deployToAll: false
-            infrastructureDefinitions:
-              - identifier: infralambda
           execution:
             steps:
               - step:
-                  type: AwsLambdaDeploy
-                  name: Deploy Lambda
-                  identifier: Deploy_Lambda
-                  spec: {}
-                  timeout: 10m
-                  failureStrategies:
-                    - onFailure:
-                        errors:
-                          - AllErrors
-                        action:
-                          type: Ignore
-                  strategy:
-                    parallelism: 1
-            rollbackSteps: []
+                  name: Aprovar Deploy SAM
+                  identifier: Aprovar_Deploy_SAM
+                  type: HarnessApproval
+                  timeout: 1d
+                  spec:
+                    approvalMessage: |-
+                      Please review the following information
+                      and approve the pipeline progression
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                      userGroups:
+                        - account._account_all_users
+                    isAutoRejectEnabled: false
+                    approverInputs: []
         tags: {}
-        failureStrategies:
-          - onFailure:
-              errors:
-                - AllErrors
-              action:
-                type: Ignore
+    - stage:
+        name: Sam-Deploy
+        identifier: SamDeploy
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Build and Deploy SAM
+                  identifier: Build_and_Deploy_SAM
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: amazon/aws-sam-cli:latest
+                    shell: Sh
+                    command: |-
+                      sam build
+                      sam deploy --parameter-overrides customLambdaRole=${{ inputs.lambda_role }} \
+                          --no-confirm-changeset --on-failure DELETE --no-fail-on-empty-changeset \
+                          --s3-bucket ${{ inputs.bucket_name }} --capabilities CAPABILITY_IAM \
+                          --region ${{ secrets.aws_region }} --stack-name ${{ inputs.stack_name }}
   properties:
     ci:
       codebase:

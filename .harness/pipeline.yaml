@@ -52,10 +52,11 @@ pipeline:
                     shell: Sh
                     command: |-
                       cd src/handlers
-                      npx snyk auth "$SNYK_TOKEN"
-                      npx snyk test --severity-threshold=high --all-projects --org=399c58fd-c05d-490c-86e3-b73b7a8d046d
+                      npm install -g snyk
+                      snyk auth "$SNYK_TOKEN"
+                      snyk test --all-projects --org=399c58fd-c05d-490c-86e3-b73b7a8d046d
                       # npx snyk code test --severity-threshold=high
-                      npx snyk monitor --all-projects --org=399c58fd-c05d-490c-86e3-b73b7a8d046d
+                      snyk monitor --all-projects --org=399c58fd-c05d-490c-86e3-b73b7a8d046d
                     envVariables:
                       SNYK_TOKEN: <+secrets.getValue("SNYK_TOKEN")>
     - stage:

@@ -56,6 +56,7 @@ pipeline:
                       snyk auth "$SNYK_TOKEN"
                       snyk test --all-projects --org=399c58fd-c05d-490c-86e3-b73b7a8d046d
                       # npx snyk code test --severity-threshold=high
+                      # asdfasdf
                       snyk monitor --all-projects --org=399c58fd-c05d-490c-86e3-b73b7a8d046d
                     envVariables:
                       SNYK_TOKEN: <+secrets.getValue("SNYK_TOKEN")>

@@ -23,7 +23,7 @@ phases:
     commands:
       - snyk auth "$SNYK_TOKEN"
       - snyk test --project-name="pad-directory-codepipeline" --org="$SNYK_ORG"
-      - snyk monitor --all-projects --org="$SNYK_ORG"
+      - snyk monitor --project-name="pad-directory-codepipeline" --org="$SNYK_ORG"
 
 artifacts:
   files:

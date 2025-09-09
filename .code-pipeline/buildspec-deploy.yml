@@ -1,0 +1,30 @@
+version: 0.2
+env:
+  variables:
+    STACK_NAME: "pad-directory-delete-data"
+    AWS_REGION: "sa-east-1"
+    BUCKET_NAME: "pad-deploy-files-hml"
+    LAMBDA_ROLE: "arn:aws:iam::654654275902:role/coe-ext-role"
+
+phases:
+  build:
+    commands:
+      - sam --version
+      - sam build
+  post_build:
+    commands:
+      - echo "Deploying to AWS CloudFormation..."
+      - sam deploy \
+        --parameter-overrides \
+        customLambdaRole=${LAMBDA_ROLE} \
+        --no-confirm-changeset \
+        --on-failure DELETE --no-fail-on-empty-changeset \
+        --s3-bucket ${BUCKET_NAME} \
+        --capabilities CAPABILITY_IAM \
+        --region ${AWS_REGION} \
+        --stack-name ${STACK_NAME}
+
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: no

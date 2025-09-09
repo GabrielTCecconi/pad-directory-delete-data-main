@@ -1,0 +1,31 @@
+version: 0.2
+
+env:
+  variables:
+    SNYK_ORG: "399c58fd-c05d-490c-86e3-b73b7a8d046d"
+  secrets-manager:
+    SNYK_TOKEN: "arn:aws:secretsmanager:sa-east-1:654654275902:secret:snyk-token-darede-AhkqFQ:SNYK-TOKEN"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - node -v && npm -v
+      - npm i -g snyk
+  pre_build:
+    commands:
+      - node -v
+      - npm --version
+      - cd src/handlers
+      - if [ -f package-lock.json ]; then npm ci; else npm i; fi
+  snyk-scan:
+    commands:
+      - snyk auth "$SNYK_TOKEN"
+      - snyk test --project-name="pad-directory-codepipeline" --org="$SNYK_ORG"
+      - snyk monitor --all-projects --org="$SNYK_ORG"
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: .

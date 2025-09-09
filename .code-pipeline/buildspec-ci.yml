@@ -19,7 +19,7 @@ phases:
       - npm --version
       - cd src/handlers
       - if [ -f package-lock.json ]; then npm ci; else npm i; fi
-  snyk-scan:
+  build:
     commands:
       - snyk auth "$SNYK_TOKEN"
       - snyk test --project-name="pad-directory-codepipeline" --org="$SNYK_ORG"

@@ -14,15 +14,7 @@ phases:
   post_build:
     commands:
       - echo "Deploying to AWS CloudFormation..."
-      - |
-        sam deploy --debug \
-          --parameter-overrides ParameterKey=customLambdaRole,ParameterValue="${LAMBDA_ROLE}" \
-          --no-confirm-changeset \
-          --on-failure DELETE --no-fail-on-empty-changeset \
-          --s3-bucket "${BUCKET_NAME}" \
-          --capabilities CAPABILITY_IAM \
-          --region "${AWS_REGION}" \
-          --stack-name "${STACK_NAME}"
+      - sam deploy --debug --parameter-overrides ParameterKey=customLambdaRole,ParameterValue="${LAMBDA_ROLE}" --no-confirm-changeset --on-failure DELETE --no-fail-on-empty-changeset --s3-bucket "${BUCKET_NAME}" --capabilities CAPABILITY_IAM --region "${AWS_REGION}" --stack-name "${STACK_NAME}"
 
 artifacts:
   files:

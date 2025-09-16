@@ -9,11 +9,65 @@ trigger:
 pool:
   name: SelfHosted
 
-steps:
-- script: echo 'Agent: $HOSTNAME'
-  displayName: 'Run a one-line script'
+stages:
+- stage: build
+  displayName: 'Build stage'
+  jobs:
+    - job: build
+      container: cimg/node:20.19
+      steps:
+      - bash: node -v && npm -v
+      - bash: |
+          if [ -f src/handlers/package-lock.json ]; then
+            npm ci --prefix src/handlers
+          else
+            npm i --prefix src/handlers
+          fi
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: 'src/handlers'
+          artifact: 'app'
+          publishLocation: 'pipeline'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- stage: scan
+  displayName: 'Snyk Scan stage'
+  dependsOn: build
+  condition: succeeded()
+  variables:
+    - group: snyk-vars
+  jobs:
+    - job: snyk_scan_job
+      steps:
+      - task: DownloadPipelineArtifact@2
+        inputs: { artifact: app, path: src/handlers }
+      - bash: npm install -g snyk
+      - bash: snyk auth $(SNYK_TOKEN)
+      - bash: |
+          cd src/handlers
+          snyk test --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
+          snyk monitor --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
+
+# - stage: deploy
+#   displayName: 'Deploy SAM stage'
+#   dependsOn: [scan, build]
+#   condition: succeeded()
+#   variables:
+#     - group: aws-sam-homolog
+#   jobs:
+#     - job: sam_build
+#       container: public.ecr.aws/sam/build-nodejs18.x:1.144.0-20250911030134
+#       steps:
+#       - bash: sam --version
+#       - bash: sam build
+#     - job: sam_deploy
+#       container: public.ecr.aws/sam/build-nodejs18.x:1.144.0-20250911030134
+#       steps:
+#       - bash: |
+#           sam deploy \
+#             --parameter-overrides customLambdaRole=$(LAMBDA_ROLE) \
+#             --no-confirm-changeset \
+#             --on-failure DELETE --no-fail-on-empty-changeset \
+#             --s3-bucket $(BUCKET_NAME) \
+#             --capabilities CAPABILITY_IAM \
+#             --region $(AWS_REGION) \
+#             --stack-name $(STACK_NAME)

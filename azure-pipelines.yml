@@ -11,9 +11,7 @@ pool:
 
 steps:
 - checkout: self
-
 - script: hostname
   displayName: 'Show hostname'
-
 - script: echo "Agent hostname: $(hostname)"
   displayName: 'Echo hostname'

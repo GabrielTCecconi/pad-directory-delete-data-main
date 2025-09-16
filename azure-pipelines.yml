@@ -7,7 +7,7 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  name: SelfHosted
 
 steps:
 - script: echo Hello, world!

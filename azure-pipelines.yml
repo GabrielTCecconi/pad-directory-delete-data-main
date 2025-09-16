@@ -11,5 +11,9 @@ pool:
 
 steps:
 - checkout: self
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+
+- script: hostname
+  displayName: Show hostname
+
+- bash: echo "Agent hostname: $(hostname)"
+  displayName: Echo hostname

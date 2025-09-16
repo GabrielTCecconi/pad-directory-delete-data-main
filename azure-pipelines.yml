@@ -13,7 +13,7 @@ steps:
 - checkout: self
 
 - script: hostname
-  displayName: Show hostname
+  displayName: 'Show hostname'
 
 - bash: echo "Agent hostname: $(hostname)"
-  displayName: Echo hostname
+  displayName: 'Echo hostname'

@@ -10,8 +10,10 @@ pool:
   name: SelfHosted
 
 steps:
-- checkout: self
-- script: hostname
-  displayName: 'Show hostname'
-- script: echo "Agent hostname: $(hostname)"
-  displayName: 'Echo hostname'
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'

@@ -52,8 +52,8 @@ stages:
       - bash: npm i -D snyk
       - bash: npx snyk auth $(SNYK_TOKEN)
       - bash: |
-          snyk test --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
-          snyk monitor --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
+          npx snyk test --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
+          npx snyk monitor --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
 
 # - stage: deploy
 #   displayName: 'Deploy SAM stage'

@@ -39,6 +39,9 @@ stages:
     - group: snyk-vars
   jobs:
     - job: snyk_scan_job
+      container: 
+        image: node:20.19
+        options: --user 0
       steps:
       - task: DownloadPipelineArtifact@2
         inputs: { artifact: app, path: src/handlers }

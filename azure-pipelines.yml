@@ -45,10 +45,13 @@ stages:
       steps:
       - task: DownloadPipelineArtifact@2
         inputs: { artifact: app, path: src/handlers }
+      - bash: |
+          ls -la
+          pwd
+      - bash: cd src/handlers
       - bash: npm install -g snyk
       - bash: snyk auth $(SNYK_TOKEN)
       - bash: |
-          cd src/handlers
           snyk test --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
           snyk monitor --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
 

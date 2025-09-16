@@ -49,11 +49,12 @@ stages:
           ls -la
           pwd
       - bash: cd src/handlers
-      - bash: npm install -g snyk
-      - bash: snyk auth $(SNYK_TOKEN)
+      - bash: npm i -D snyk
+      - bash: npx npm install -g snyk
+      - bash: npx snyk auth $(SNYK_TOKEN)
       - bash: |
-          snyk test --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
-          snyk monitor --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
+          npx snyk test --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
+          npx snyk monitor --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
 
 # - stage: deploy
 #   displayName: 'Deploy SAM stage'

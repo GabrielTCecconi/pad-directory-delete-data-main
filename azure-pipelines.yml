@@ -63,7 +63,9 @@ stages:
     - group: aws-sam-homolog
   jobs:
     - job: sam_build
-      container: public.ecr.aws/sam/build-nodejs18.x:1.144.0-20250911030134
+      container: 
+        image: public.ecr.aws/sam/build-nodejs18.x:1.144.0-20250911030134
+        options: --user 0
       steps:
       - bash: sam --version
       - bash: sam build

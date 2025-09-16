@@ -15,5 +15,5 @@ steps:
 - script: hostname
   displayName: 'Show hostname'
 
-- bash: echo "Agent hostname: $(hostname)"
+- script: echo "Agent hostname: $(hostname)"
   displayName: 'Echo hostname'

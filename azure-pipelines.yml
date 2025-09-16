@@ -10,7 +10,7 @@ pool:
   name: SelfHosted
 
 steps:
-- script: echo Hello, world!
+- script: echo "Agent: $HOSTNAME"
   displayName: 'Run a one-line script'
 
 - script: |

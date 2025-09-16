@@ -55,18 +55,18 @@ stages:
           npx snyk test --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
           npx snyk monitor --project-name="pad-delete-gitlabci" --org="$(SNYK_ORG)"
 
-# - stage: deploy
-#   displayName: 'Deploy SAM stage'
-#   dependsOn: [scan, build]
-#   condition: succeeded()
-#   variables:
-#     - group: aws-sam-homolog
-#   jobs:
-#     - job: sam_build
-#       container: public.ecr.aws/sam/build-nodejs18.x:1.144.0-20250911030134
-#       steps:
-#       - bash: sam --version
-#       - bash: sam build
+- stage: deploy
+  displayName: 'Deploy SAM stage'
+  dependsOn: [scan, build]
+  condition: succeeded()
+  variables:
+    - group: aws-sam-homolog
+  jobs:
+    - job: sam_build
+      container: public.ecr.aws/sam/build-nodejs18.x:1.144.0-20250911030134
+      steps:
+      - bash: sam --version
+      - bash: sam build
 #     - job: sam_deploy
 #       container: public.ecr.aws/sam/build-nodejs18.x:1.144.0-20250911030134
 #       steps:

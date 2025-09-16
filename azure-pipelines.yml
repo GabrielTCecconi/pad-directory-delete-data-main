@@ -14,7 +14,9 @@ stages:
   displayName: 'Build stage'
   jobs:
     - job: build
-      container: cimg/node:20.19
+      container: 
+        image: node:20.19
+        options: --user 0
       steps:
       - bash: node -v && npm -v
       - bash: |

@@ -64,14 +64,18 @@ stages:
   jobs:
     - job: sam_deploy
       steps:
+      - bash: |
+          curl -L -o aws-sam-cli.zip https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip
+          unzip -q aws-sam-cli.zip -d sam-installation
+          sudo ./sam-installation/install
+          sam --version
+        displayName: 'Install SAM CLI'
       - task: AWSShellScript@1
         inputs:
           awsCredentials: 'aws-connection'
           regionName: 'us-east-1'
           scriptType: 'inline'
           inlineScript: 'sam --version'
-      - bash: sam --version
-      - bash: sam build
 #       - bash: |
 #           sam deploy \
 #             --parameter-overrides customLambdaRole=$(LAMBDA_ROLE) \

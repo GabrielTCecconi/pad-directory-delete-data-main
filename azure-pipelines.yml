@@ -74,7 +74,12 @@ stages:
           script: |
             python3 -V
             pip install --no-cache-dir --user aws-sam-cli
-            echo "##vso[task.setvariable variable=PATH]$HOME/.local/bin:$PATH"
+            USER_BIN="$HOME/.local/bin"
+            echo "HOME=$HOME"
+            ls -la "$USER_BIN" || true
+            export PATH="$USER_BIN:$PATH"
+            echo "##vso[task.setvariable variable=PATH]$PATH"
+            which sam || true
             sam --version
       - bash: sam build
 #       - bash: |

@@ -64,7 +64,7 @@ stages:
   jobs:
     - job: sam_deploy
       container: 
-        image: docker.io/gabrielcecconi/sam-node18-azp:1.144.0
+        image: docker.io/gabrielcecconi/sam-node18-azp:1.144.0-1
         options: --user 0
       steps:
       - bash: sam --version

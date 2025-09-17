@@ -81,7 +81,7 @@ stages:
             pip3 install --no-cache-dir --upgrade pip aws-sam-cli
             echo "##vso[task.setvariable variable=PATH]$HOME/.local/bin:$PATH"
             aws --version
-            sam --versio
+            sam --version
       - bash: sam --version
       - bash: sam build
 #       - bash: |

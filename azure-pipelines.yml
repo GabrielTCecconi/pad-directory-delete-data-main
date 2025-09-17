@@ -73,6 +73,7 @@ stages:
           targetType: inline
           script: |
             set -euo pipefail
+            apt-get update && apt-get install -y python3 python3-pip
             python3 -V
             pip3 install --no-cache-dir --user aws-sam-cli
             export PATH="$HOME/.local/bin:$PATH"

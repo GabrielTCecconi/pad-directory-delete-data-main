@@ -64,7 +64,7 @@ stages:
   jobs:
     - job: sam_deploy
       container: 
-        image: python:3.11-slim
+        image: mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm
         options: --user 0
       steps:
       - task: Bash@3
@@ -72,14 +72,11 @@ stages:
         inputs:
           targetType: inline
           script: |
+            set -euo pipefail
             python3 -V
-            pip install --no-cache-dir --user aws-sam-cli
-            USER_BIN="$HOME/.local/bin"
-            echo "HOME=$HOME"
-            ls -la "$USER_BIN" || true
-            export PATH="$USER_BIN:$PATH"
+            pip3 install --no-cache-dir --user aws-sam-cli
+            export PATH="$HOME/.local/bin:$PATH"
             echo "##vso[task.setvariable variable=PATH]$PATH"
-            which sam || true
             sam --version
       - bash: sam build
 #       - bash: |

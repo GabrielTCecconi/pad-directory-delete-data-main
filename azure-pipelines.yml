@@ -70,8 +70,6 @@ stages:
           regionName: 'us-east-1'
           scriptType: 'inline'
           inlineScript: 'sam --version'
-          inlineScript: |
-            sam --version
       - bash: sam --version
       - bash: sam build
 #       - bash: |

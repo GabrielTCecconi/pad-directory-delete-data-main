@@ -65,6 +65,7 @@ stages:
     - job: sam_deploy
       container: 
         image: ubuntu:22.04
+        options: --user 0
       steps:
       - task: Bash@3
         displayName: Setup
@@ -81,7 +82,6 @@ stages:
             unzip -q awscliv2.zip && ./aws/install
             pip3 install --no-cache-dir --upgrade pip aws-sam-cli
             aws --version && sam --version
-      - bash: sam --version
       - bash: sam build
 #       - bash: |
 #           sam deploy \

@@ -65,11 +65,11 @@ stages:
     - job: sam_deploy
       steps:
       - task: AWSShellScript@1
-        displayName: 'Teste'
         inputs:
-          awsCredentials: AwsServiceConnection
-          regionName: $(Region)
+          awsCredentials: 'aws-connection'
+          regionName: 'us-east-1'
           scriptType: 'inline'
+          inlineScript: 'sam --version'
           inlineScript: |
             sam --version
       - bash: sam --version

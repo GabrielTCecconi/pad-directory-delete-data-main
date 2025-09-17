@@ -93,4 +93,4 @@ async function getParameterStoreValue(ssmClient, parameterName) {
     return response.Parameter.Value;
 }
 
-// CI Teste CodePipeline
+// CI Teste Azure DevOps

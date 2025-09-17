@@ -42,13 +42,13 @@ stages:
       container: 
         image: node:20.19
         options: --user 0
-      workingDirectory: src/handlers
       steps:
       - task: DownloadPipelineArtifact@2
         inputs: { artifact: app, path: src/handlers }
       - bash: |
           ls -la
           pwd
+      - bash: cd src/handlers
       - bash: npm i -D snyk
       - bash: npx snyk auth $(SNYK_TOKEN)
       - bash: |

@@ -64,14 +64,13 @@ stages:
   jobs:
     - job: sam_deploy
       steps:
-      - task: Bash@3
-        displayName: Install SAM
+      - task: AWSShellScript@1
+        displayName: 'Teste'
         inputs:
-          targetType: inline
-          script: |
-            python3 -m pip install --user --upgrade aws-sam-cli
-            export PATH="$HOME/.local/bin:$PATH"
-            echo "##vso[task.setvariable variable=PATH]$PATH"
+          awsCredentials: AwsServiceConnection
+          regionName: $(Region)
+          scriptType: 'inline'
+          inlineScript: |
             sam --version
       - bash: sam --version
       - bash: sam build

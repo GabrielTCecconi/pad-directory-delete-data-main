@@ -63,10 +63,18 @@ stages:
     - group: aws-sam-homolog
   jobs:
     - job: sam_deploy
-      container: 
-        image: docker.io/gabrielcecconi/sam-node18-azp:1.144.0-1
-        options: --user 0
       steps:
+      - task: UsePythonVersion@0
+        inputs: { versionSpec: '3.11' }
+      - task: Bash@3
+        displayName: Install SAM
+        inputs:
+          targetType: inline
+          script: |
+            python3 -m pip install --user --upgrade aws-sam-cli
+            export PATH="$HOME/.local/bin:$PATH"
+            echo "##vso[task.setvariable variable=PATH]$PATH"
+            sam --version
       - bash: sam --version
       - bash: sam build
 #       - bash: |
